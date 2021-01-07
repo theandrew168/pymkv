@@ -125,7 +125,7 @@ class Application:
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Start pykv master and volume servers')
+    parser = argparse.ArgumentParser(description='Start pymkv index and volume servers')
     parser.add_argument('--volumes', type=int, default=3, help='number of volume server instances')
     parser.add_argument('--replicas', type=int, default=3, help='number of data replicas')
     parser.add_argument('--subvolumes', type=int, default=10, help='number of data subvolumes')
