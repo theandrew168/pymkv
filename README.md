@@ -10,7 +10,7 @@ The config is generated as needed, thrown into a tempfile, and started as a chil
 NGINX then starts up its own worker child processes.
 
 The index server manages a mapping of where stuff lives on the volume servers.
-LevelDB (via plyvel) is store this mapping in a fast, persistent way.
+LevelDB (via [plyvel](https://plyvel.readthedocs.io/en/latest/)) is used to store this mapping in a fast, persistent way.
 The index server also exposes the primary API.
 GET gets data, PUT stores data, DELETE deletes data.
 Pretty simple!
