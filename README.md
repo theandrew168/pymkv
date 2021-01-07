@@ -1,5 +1,6 @@
 # pymkv
 Exploring George Hotz's [minikeyvalue](https://github.com/geohot/minikeyvalue) design in Python.
+At the moment, this project does NOT support running on Windows systems.
 
 Volume "servers" store all of the actual data.
 The data is evenly distributed into a predictable nested directory structure based on the base64'd hash of its contents.
@@ -16,20 +17,54 @@ GET gets data, PUT stores data, DELETE deletes data.
 Pretty simple!
 The index server talks with the volume servers in a similar manner.
 
-## Dependencies
-Besides [Python](https://www.python.org), this project also depends on having [NGINX](http://nginx.org/) installed.
+## System Dependencies
+Besides [Python](https://www.python.org), this project also depends on having [NGINX](http://nginx.org/) and [libev](http://software.schmorp.de/pkg/libev.html) installed.
 ```
 # linux, debian-based
-sudo apt install nginx
+sudo apt install nginx libev-dev
 
 # macos
-brew install nginx
+brew install nginx libev
+```
+
+## Python Dependencies
+If you are unfamiliar with [virtual environments](https://docs.python.org/3/library/venv.html), I suggest taking a brief moment to learn about them and set one up.
+The Python docs provide a great [tutorial](https://docs.python.org/3/tutorial/venv.html) for getting started with virtual environments and packages.
+
+Install the project's Python dependencies via:
+```
+pip install wheel
+pip install -r requirements.txt
+```
+
+## Running
+First start one or more volume servers (these could run on different systems):
+```
+python3 volume.py 3001 /tmp/volume1/ &
+python3 volume.py 3002 /tmp/volume2/ &
+python3 volume.py 3003 /tmp/volume3/ &
+```
+
+Then start the index server using the addresses of the volume servers:
+```
+python3 index.py localhost:3001 localhost:3002 localhost:3003
 ```
 
 ## Usage
-The index and volume servers can be started by running:
+With the index server running on port 3000, the following commands demonstrate core functionality:
 ```
-python3 main.py
-```
+# put "bigswag" in key "wehave"
+curl -L -X PUT -d bigswag localhost:3000/wehave
 
-TODO What now? How do I use this thing?
+# get key "wehave" (should be "bigswag")
+curl -L localhost:3000/wehave
+
+# delete key "wehave"
+curl -L -X DELETE localhost:3000/wehave
+
+# put file in key "file.txt"
+curl -v -L -X PUT -T /path/to/local/file.txt localhost:3000/file.txt
+
+# get file in key "file.txt"
+curl -v -L -o /path/to/local/file.txt localhost:3000/file.txt
+```
