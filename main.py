@@ -1,14 +1,13 @@
 import argparse
 import asyncio
 import base64
+import dbm
 import hashlib
 import os
 import subprocess
 import tempfile
 from urllib.request import Request, urlopen
 from wsgiref.simple_server import make_server
-
-import plyvel
 
 
 def generate_nginx_conf(port, volume_path):
@@ -157,19 +156,14 @@ if __name__ == '__main__':
         print('starting volume instance: {}'.format(proc.pid))
         volume_procs.append(proc)
 
-    # open a connection to the LevelDB instance
-    db = plyvel.DB('/tmp/indexdb', create_if_missing=True)
-
-    # run the main index server til stop
-    try:
-        app = Application(db, volume_names, args.replicas, args.subvolumes)
-        with make_server('', 3000, app) as httpd:
-            httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
-    # close the LevelDB
-    db.close()
+    with dbm.open('/tmp/indexdb', 'c') as db:
+        # run the main index server til stop
+        try:
+            app = Application(db, volume_names, args.replicas, args.subvolumes)
+            with make_server('', 3000, app) as httpd:
+                httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
 
     # stop the volume instances
     for proc in volume_procs:
