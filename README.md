@@ -40,6 +40,7 @@ pip install -r requirements.txt
 ## Running
 First start one or more volume servers (these could run on different systems):
 ```
+# ignore the nginx "could not open error log" warnings
 python3 volume.py 3001 /tmp/volume1/ &
 python3 volume.py 3002 /tmp/volume2/ &
 python3 volume.py 3003 /tmp/volume3/ &
@@ -68,3 +69,18 @@ curl -v -L -X PUT -T /path/to/local/file.txt localhost:3000/file.txt
 # get file in key "file.txt"
 curl -v -L -o /path/to/local/file.txt localhost:3000/file.txt
 ```
+
+## Performance
+All of these benchmarks are executed locally on my ThinkPad T480.
+| **Benchmark** | **Command** |
+| --- | --- |
+| fetch non-existent key | hey -c 100 -z 10s http://localhost:3000/badkey |
+| fetch existing key | hey -c 100 -z 10s http://localhost:3000/goodkey |
+| thrasher.go | go run tools/thrasher.go |
+
+These results (requests per second) are each the average of three trials.
+| **Benchmark** | **[pymkv](https://github.com/theandrew168/pymkv)** | **[minikeyvalue](https://github.com/geohot/minikeyvalue)** |
+| --- | --- | --- |
+| fetch non-existent key | 33931 | 81393 |
+| fetch existing key | 30258 | 22353 |
+| thrasher.go | 1276 | 6625 |
