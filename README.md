@@ -5,7 +5,7 @@ At the moment, this project does NOT support running on Windows systems.
 Volume "servers" store all of the actual data.
 The data is evenly distributed into a predictable nested directory structure based on the base64'd hash of its contents.
 Could be text, a file, doesn't really matter.
-It is all bytes.
+It's all bytes.
 This part of the program is just an NGINX subprocess.
 The config is generated as needed, thrown into a tempfile, and started as a child process.
 NGINX then starts up its own worker child processes.
