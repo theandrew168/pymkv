@@ -49,7 +49,7 @@ def nginx_volume_server_conf(port, path):
         }
     }
     """
-    return nginx_conf % (path, port, path, path)
+    return nginx_conf % (path, path, port, path)
 
 
 def nginx_temporary_config_file(conf):

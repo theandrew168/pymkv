@@ -76,20 +76,20 @@ func main() {
 			for {
 				key := <-reqs
 				value := fmt.Sprintf("value-%d", rand.Int())
-				if err := remote_put("http://localhost:3000/"+key, int64(len(value)), strings.NewReader(value)); err != nil {
+				if err := remote_put("http://159.203.81.45:3000/"+key, int64(len(value)), strings.NewReader(value)); err != nil {
 					fmt.Println("PUT FAILED", err)
 					resp <- false
 					continue
 				}
 
-				ss, err := remote_get("http://localhost:3000/" + key)
+				ss, err := remote_get("http://159.203.81.45:3000/" + key)
 				if err != nil || ss != value {
 					fmt.Println("GET FAILED", err, ss, value)
 					resp <- false
 					continue
 				}
 
-				if err := remote_delete("http://localhost:3000/" + key); err != nil {
+				if err := remote_delete("http://159.203.81.45:3000/" + key); err != nil {
 					fmt.Println("DELETE FAILED", err)
 					resp <- false
 					continue

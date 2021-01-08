@@ -1,10 +1,67 @@
 import argparse
 import base64
+from contextlib import contextmanager
 import dbm
 import hashlib
+import os
+import subprocess
+import tempfile
 from urllib.request import Request, urlopen
 
-import bjoern
+import waitress
+
+
+def nginx_index_server_conf(port, proxy_port):
+    nginx_conf = """
+    daemon off;
+    worker_processes auto;
+    pcre_jit on;
+
+    pid nginx_index.pid;
+    error_log /dev/stderr;
+
+    events {
+        multi_accept on;
+        accept_mutex off;
+        worker_connections 4096;
+    }
+
+    http {
+        access_log off;
+
+        tcp_nodelay on;
+        tcp_nopush on;
+
+        server_tokens off;
+        default_type application/octet-stream;
+
+        server {
+            listen %d backlog=4096;
+            location / {
+                client_body_temp_path /tmp/body_temp;
+                client_max_body_size 0;
+                proxy_pass http://127.0.0.1:%d;
+                proxy_redirect off;
+            }
+        }
+    }
+    """
+    return nginx_conf % (port, proxy_port)
+
+
+def nginx_temporary_config_file(conf):
+    fd, path = tempfile.mkstemp()
+    os.write(fd, conf.encode())
+    os.close(fd)
+    return path
+
+
+@contextmanager
+def nginx_run_in_background(run_cmd):
+    proc = subprocess.Popen(run_cmd)
+    yield
+    proc.terminate()
+    proc.wait()
 
 
 # determine the volume directory path for a given key
@@ -62,7 +119,7 @@ class Application:
             return [b'']
         elif method == 'PUT':
             # reject empty values
-            if environ['CONTENT_LENGTH'] == 0:
+            if int(environ['CONTENT_LENGTH']) == 0:
                 start_response('411 Length Required', headers)
                 return [b'']
             # reject duplicate keys
@@ -121,11 +178,18 @@ if __name__ == '__main__':
     parser.add_argument('--index', default='/tmp/indexdb', help='path to index database')
     args = parser.parse_args()
 
+    proxy_port = 8080
     volumes = list(args.volume)
-    with dbm.open(args.index, 'c') as db:
-        try:
-            app = Application(db, volumes)
-            print('PyMKV is listening on :{}'.format(args.port))
-            bjoern.run(app, host='0.0.0.0', port=args.port, reuse_port=True)
-        except KeyboardInterrupt:
-            pass
+
+    conf = nginx_index_server_conf(args.port, proxy_port)
+    conf_path = nginx_temporary_config_file(conf)
+    run_cmd = ['nginx', '-c', conf_path, '-p', '.']
+
+    with nginx_run_in_background(run_cmd):
+        with dbm.open(args.index, 'c') as db:
+            try:
+                app = Application(db, volumes)
+                print('PyMKV is listening on :{}'.format(args.port))
+                waitress.serve(app, host='127.0.0.1', port=proxy_port)
+            except KeyboardInterrupt:
+                pass

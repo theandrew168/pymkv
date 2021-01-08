@@ -1,0 +1,202 @@
+1 index, 3 volumes (1vCPU, 512MB, $5/month)
+--------------------------------------
+
+bjoern, no proxy
+---------------------
+pymkv, no exists
+1034
+983
+984
+
+pymkv, exists
+677
+696
+677
+
+pymkv, thrasher
+62
+61
+61
+
+bjoern, proxy
+------------------
+pymkv, no exists
+1950
+1999
+1998
+
+pymkv, exists
+949
+1029
+926
+
+pymkv, thrasher
+70
+70
+70
+
+waitress (4 threads), no proxy
+------------------
+pymkv, no exists
+has errors
+
+pymkv, exists
+has errors
+
+pymkv, thrasher
+69
+68
+68
+
+waitress (1 thread), proxy
+------------------
+pymkv, no exists
+1361
+1306
+1376
+
+pymkv, exists
+1005
+1022
+960
+
+pymkv, thrasher
+97
+97
+96
+
+waitress (2 threads), proxy
+------------------
+pymkv, no exists
+1377
+1395
+1395
+
+pymkv, exists
+957
+1010
+934
+
+pymkv, thrasher
+97
+97
+95
+
+waitress (4 threads), proxy
+------------------
+pymkv, no exists
+1382
+1369
+1441
+
+pymkv, exists
+994
+1045
+996
+
+pymkv, thrasher
+100
+98
+99
+
+waitress (4 threads), proxy (4vCPU, 8GB, $40/month)
+------------------
+pymkv, no exists
+1033
+994
+969
+
+pymkv, exists
+902
+832
+884
+
+pymkv, thrasher
+90
+92
+90
+
+waitress (8 threads), proxy (4vCPU, 8GB, $40/month)
+------------------
+pymkv, no exists
+952
+985
+938
+
+pymkv, exists
+878
+897
+863
+
+pymkv, thrasher
+92
+91
+95
+
+go, no proxy
+---------
+minikeyvalue, no exists
+2217
+2086
+2152
+
+minikeyvalue, exists
+976
+937
+910
+
+minikeyvalue, thrasher
+102
+102
+101
+
+go, proxy
+---------
+minikeyvalue, no exists
+1724
+1662
+1582
+
+minikeyvalue, exists
+887
+866
+885
+
+minikeyvalue, thrasher
+100
+100
+101
+
+go, no proxy (4vCPU, 8GB, $40/month)
+---------
+minikeyvalue, no exists
+2351
+2248
+2204
+
+minikeyvalue, exists
+1014
+1009
+940
+
+minikeyvalue, thrasher
+101
+102
+100
+
+go, proxy (4vCPU, 8GB, $40/month)
+---------
+minikeyvalue, no exists
+1956
+1930
+1931
+
+minikeyvalue, exists
+944
+971
+989
+
+minikeyvalue, thrasher
+97
+99
+100

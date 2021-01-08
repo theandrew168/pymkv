@@ -18,13 +18,13 @@ Pretty simple!
 The index server talks with the volume servers in a similar manner.
 
 ## System Dependencies
-Besides [Python](https://www.python.org), this project also depends on having [NGINX](http://nginx.org/) and [libev](http://software.schmorp.de/pkg/libev.html) installed.
+Besides [Python](https://www.python.org), this project also depends on having [NGINX](http://nginx.org/) installed.
 ```
 # linux, debian-based
-sudo apt install nginx libev-dev
+sudo apt install nginx
 
 # macos
-brew install nginx libev
+brew install nginx
 ```
 
 ## Python Dependencies
@@ -33,7 +33,6 @@ The Python docs provide a great [tutorial](https://docs.python.org/3/tutorial/ve
 
 Install the project's Python dependencies via:
 ```
-pip install wheel
 pip install -r requirements.txt
 ```
 
@@ -55,32 +54,56 @@ python3 index.py localhost:3001 localhost:3002 localhost:3003
 With the index server running on port 3000, the following commands demonstrate core functionality:
 ```
 # put "bigswag" in key "wehave"
-curl -L -X PUT -d bigswag localhost:3000/wehave
+curl -v -L -X PUT -d bigswag http://localhost:3000/wehave
 
 # get key "wehave" (should be "bigswag")
-curl -L -X GET localhost:3000/wehave
+curl -v -L -X GET http://localhost:3000/wehave
 
 # delete key "wehave"
-curl -L -X DELETE localhost:3000/wehave
+curl -v -L -X DELETE http://localhost:3000/wehave
 
 # put file in key "file.txt"
-curl -v -L -X PUT -T /path/to/local/file.txt localhost:3000/file.txt
+curl -v -L -X PUT -T /path/to/local/file.txt http://localhost:3000/file.txt
 
 # get file in key "file.txt"
-curl -v -L -o /path/to/local/file.txt localhost:3000/file.txt
+curl -v -L -X GET -o /path/to/local/file.txt http://localhost:3000/file.txt
 ```
 
 ## Performance
-All of these benchmarks are executed locally on my ThinkPad T480.
+All of these benchmarks are executed remotely on a small Digital Ocean cluster (1 index, 3 volumes).
+Unless otherwise noted, all of the droplets are the smallest size (1vCPU, 512MB, $5/month).
+
+### Benchmarks
+
 | **Benchmark** | **Command** |
 | --- | --- |
-| fetch non-existent key | hey -c 100 -z 10s http://localhost:3000/badkey |
-| fetch existing key | hey -c 100 -z 10s http://localhost:3000/goodkey |
-| thrasher.go | go run tools/thrasher.go |
+| **fetch missing** | hey -c 100 -z 10s http://<index_server_ip>:3000/missing |
+| **fetch present** | hey -c 100 -z 10s http://<index_server_ip>:3000/present |
+| **thrasher.go** | go run extras/thrasher.go |
 
-These results (requests per second) are each the average of three trials.
-| **Benchmark** | **[pymkv](https://github.com/theandrew168/pymkv)** | **[minikeyvalue](https://github.com/geohot/minikeyvalue)** |
-| --- | --- | --- |
-| fetch non-existent key | 33931 | 81393 |
-| fetch existing key | 30258 | 22353 |
-| thrasher.go | 1276 | 6625 |
+### Glossary
+
+| **Term** | **Meaning** |
+| --- | --- |
+| **[pymkv](https://github.com/theandrew168/pymkv)** | My own implementation in Python |
+| **[minikeyvalue](https://github.com/geohot/minikeyvalue)** | George Hotz's original implementation in Go |
+| **[bjoern](https://github.com/jonashaag/bjoern)** | Single-threaded C-based WSGI server |
+| **[waitress](https://github.com/Pylons/waitress)** | Multi-threaded pure-python WSGI server |
+| **proxy** | Utilizing NGINX as a local reverse proxy |
+| **big** | Index server ran on a 4vCPU, 8GB, $40/month droplet |
+
+### Results
+Each of these results are the average of three trials and are measured in requests per second.
+The bolded columns are where results are maximized while resources are minimized (biggest bang for your literal AND technological buck).
+
+| **Benchmark** | **pymkv + bjoern** | **pymkv + bjoern + proxy** | **pymkv + waitress** | **pymkv + waitress + proxy** | **pymkv + waitress + proxy + big** |
+| --- | --- | --- | --- | --- | --- |
+| **fetch missing** | 1000 | 1982 | error | **1397** | 999 |
+| **fetch present** | 683 | 968 | error | **1012** | 873 |
+| **thrasher.go** | 61 | 70 | 68 | **99** | 91 |
+
+| **Benchmark** | **minikeyvalue** | **minikeyvalue + proxy** | **minikeyvalue + big** | **minikeyvalue + proxy + big** |
+| --- | --- | --- | --- | --- |
+| **fetch missing** | **2152** | 1656 | 2268 | 1939 |
+| **fetch present** | **941** | 879 | 988 | 968 |
+| **thrasher.go** | **102** | 100 | 101 | 99 |
