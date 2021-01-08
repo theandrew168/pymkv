@@ -70,10 +70,7 @@ curl -v -L -X GET -o /path/to/local/file.txt http://localhost:3000/file.txt
 ```
 
 ## Performance
-All of these benchmarks are executed remotely on a small Digital Ocean cluster (1 index, 3 volumes).
-Unless otherwise noted, all of the droplets are the smallest size (1vCPU, 512MB, $5/month).
-
-### Benchmarks
+All of these benchmarks were executed against a small cluster (1 index, 3 volumes) of Digital Ocean droplets (1vCPU, 512MB, $5/month).
 
 | **Benchmark** | **Command** |
 | --- | --- |
@@ -81,29 +78,10 @@ Unless otherwise noted, all of the droplets are the smallest size (1vCPU, 512MB,
 | **fetch present** | hey -c 100 -z 10s http://<index_server_ip>:3000/present |
 | **thrasher.go** | go run extras/thrasher.go |
 
-### Glossary
-
-| **Term** | **Meaning** |
-| --- | --- |
-| **[pymkv](https://github.com/theandrew168/pymkv)** | My own implementation in Python |
-| **[minikeyvalue](https://github.com/geohot/minikeyvalue)** | George Hotz's original implementation in Go |
-| **[bjoern](https://github.com/jonashaag/bjoern)** | Single-threaded C-based WSGI server |
-| **[waitress](https://github.com/Pylons/waitress)** | Multi-threaded pure-python WSGI server |
-| **proxy** | Utilizing NGINX as a local reverse proxy |
-| **big** | Index server ran on a 4vCPU, 8GB, $40/month droplet |
-
-### Results
 Each of these results are the average of three trials and are measured in requests per second.
-The bolded columns are where results are maximized while resources are minimized (biggest bang for your literal AND technological buck).
 
-| **Benchmark** | **pymkv + bjoern** | **pymkv + bjoern + proxy** | **pymkv + waitress** | **pymkv + waitress + proxy** | **pymkv + waitress + proxy + big** |
-| --- | --- | --- | --- | --- | --- |
-| **fetch missing** | 1000 | 1982 | error | **1397** | 999 |
-| **fetch present** | 683 | 968 | error | **1012** | 873 |
-| **thrasher.go** | 61 | 70 | 68 | **99** | 91 |
-
-| **Benchmark** | **minikeyvalue** | **minikeyvalue + proxy** | **minikeyvalue + big** | **minikeyvalue + proxy + big** |
-| --- | --- | --- | --- | --- |
-| **fetch missing** | **2152** | 1656 | 2268 | 1939 |
-| **fetch present** | **941** | 879 | 988 | 968 |
-| **thrasher.go** | **102** | 100 | 101 | 99 |
+| **Benchmark** | **[pymkv](https://github.com/theandrew168/pymkv)** | **[minikeyvalue](https://github.com/geohot/minikeyvalue)** |
+| --- | --- | --- |
+| **fetch missing** | 1397 | 2152 |
+| **fetch present** | 1012 | 941 |
+| **thrasher.go** | 99 | 102 |
