@@ -12,7 +12,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not os.path.exists(args.path):
-        os.makedirs(path)
+        os.makedirs(args.path)
 
     conf = nginx.volume_server_conf(args.port, args.path)
     conf_path = nginx.temporary_config_file(conf)
