@@ -58,7 +58,7 @@ With the index server running on port 3000, the following commands demonstrate c
 curl -L -X PUT -d bigswag localhost:3000/wehave
 
 # get key "wehave" (should be "bigswag")
-curl -L localhost:3000/wehave
+curl -L -X GET localhost:3000/wehave
 
 # delete key "wehave"
 curl -L -X DELETE localhost:3000/wehave
