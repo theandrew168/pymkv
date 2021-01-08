@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -64,6 +65,9 @@ func remote_get(remote string) (string, error) {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	addr := flag.String("addr", "localhost:3000", "Address of index server")
+	flag.Parse()
+
 	reqs := make(chan string, 20000)
 	resp := make(chan bool, 20000)
 	fmt.Println("starting thrasher")
@@ -76,20 +80,20 @@ func main() {
 			for {
 				key := <-reqs
 				value := fmt.Sprintf("value-%d", rand.Int())
-				if err := remote_put("http://localhost:3000/"+key, int64(len(value)), strings.NewReader(value)); err != nil {
+				if err := remote_put("http://" + *addr + "/" + key, int64(len(value)), strings.NewReader(value)); err != nil {
 					fmt.Println("PUT FAILED", err)
 					resp <- false
 					continue
 				}
 
-				ss, err := remote_get("http://localhost:3000/" + key)
+				ss, err := remote_get("http://" + *addr + "/" + key)
 				if err != nil || ss != value {
 					fmt.Println("GET FAILED", err, ss, value)
 					resp <- false
 					continue
 				}
 
-				if err := remote_delete("http://localhost:3000/" + key); err != nil {
+				if err := remote_delete("http://" + *addr + "/" + key); err != nil {
 					fmt.Println("DELETE FAILED", err)
 					resp <- false
 					continue

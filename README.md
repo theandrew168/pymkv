@@ -76,7 +76,7 @@ All of these benchmarks were executed against a small cluster (1 index, 3 volume
 | --- | --- |
 | **fetch missing** | hey -c 100 -z 10s http://<index_server_ip>:3000/missing |
 | **fetch present** | hey -c 100 -z 10s http://<index_server_ip>:3000/present |
-| **thrasher.go** | go run extras/thrasher.go |
+| **thrasher.go** | go run extras/thrasher.go -addr <index_server_ip>:3000 |
 
 Each of these results are the average of three trials and are measured in requests per second.
 
