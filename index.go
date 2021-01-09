@@ -114,7 +114,7 @@ func (app *Application) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(204)
+		w.WriteHeader(201)
 		return
 	case "DELETE":
 		// reject invalid keys
