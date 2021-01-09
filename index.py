@@ -72,7 +72,7 @@ def key2path(key):
     return '/{:02x}/{:02x}/{:s}'.format(md5key[0], md5key[1], b64key)
 
 
-# determine which volume(s) keys should be associated with
+# determine which volume a key should be associated with
 def key2volume(key, volumes):
     bkey = key.encode()
     best_score = None
