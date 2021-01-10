@@ -4,6 +4,7 @@ Overall, I think George's implementation (and language choice) is better.
 Sure, my Python version can match his when it comes to performance and throughput but it takes an extra reverse proxy layer (more NGINX) to get there.
 Go really is a powerhouse when it comes to high-performance network-based applications and it shows.
 
+## Design
 Volume "servers" store all of the actual data.
 The data is evenly distributed into a predictable nested directory structure based on the base64'd hash of its contents.
 Could be text, a file, doesn't really matter.
